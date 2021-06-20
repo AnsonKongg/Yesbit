@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getUserCapitals, getPriceList } from '../Actions/index';
-import { Grid, Card, CardContent, Typography, TextField, Button, Menu, MenuItem, ListItemIcon, ListItemText, Icon } from '@material-ui/core';
+import { Grid, Card, CardContent, Typography, TextField, Button, Menu, MenuItem, ListItemIcon, ListItemText, Icon, IconButton } from '@material-ui/core';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
@@ -107,14 +107,15 @@ function ExchangeToken(props) {
     const dispatch = useDispatch()
 
     const [fromNumber, setFromNumber] = useState('');
-    const [fromTokenType, setFromTokenType] = useState();
+    const [fromTokenType, setFromTokenType] = useState('');
     const [fromError, setFromError] = useState(false);
     const [fromHelperText, setFromHelperText] = useState("");
     const [toNumber, setToNumber] = useState('');
-    const [toTokenType, setToTokenType] = useState();
+    const [toTokenType, setToTokenType] = useState('');
     const [toHelperText, setToHelperText] = useState("");
     const [anchorEl, setAnchorEl] = useState(null);
     const [buttonType, setButtonType] = useState();
+    const [isClicked, setIsClicked] = useState(false);
 
     useEffect(() => {
         const fetchUserCapitals = async () => {
@@ -125,11 +126,11 @@ function ExchangeToken(props) {
             fetchUserCapitals();
         }
 
-        if (!!userCapitals && userCapitals.length > 0 && !fromTokenType) {
+        if (!!userCapitals && userCapitals.length > 0 && !fromTokenType && !isClicked) {
             setFromTokenType({ token: userCapitals[0].token, url: userCapitals[0].logoUrl })
             setFromHelperText(`Balance: ${userCapitals[0].amount} ${userCapitals[0].token}`)
         }
-    }, [dispatch, userCapitals, fromTokenType])
+    }, [dispatch, userCapitals, fromTokenType, isClicked])
 
     const _handleOpenMenu = (event, position) => {
         setButtonType(position)
@@ -140,23 +141,32 @@ function ExchangeToken(props) {
     };
     const _handleMenuItemClicked = (event, index) => {
         let balance = userCapitals.filter(element => element.token === tokenList[index].token)[0]
+        let newToken = tokenList[index]
         setAnchorEl(null);
         if (buttonType === "from") {
-            setFromTokenType(tokenList[index]);
-            if (Number(fromNumber) > Number(balance.amount)) {
+            if (JSON.stringify(newToken) === JSON.stringify(toTokenType)) {
+                _handleMoreIconClicked()
+            }
+            else if (Number(fromNumber) > Number(balance.amount)) {
+                setFromTokenType(newToken)
                 setFromError(true)
                 setFromHelperText("You don't have enough balance for Swap.")
             } else {
-                _calculateToValue(fromNumber, tokenList[index], toTokenType)
+                setFromTokenType(newToken)
+                _calculateToValue(fromNumber, newToken, toTokenType)
                 setFromError(false)
-                setFromHelperText(`Balance: ${balance.amount} ${tokenList[index].token}`)
+                setFromHelperText(`Balance: ${balance.amount} ${newToken.token}`)
             }
         } else {
-            if (!!fromNumber) {
-                _calculateToValue(fromNumber, fromTokenType, tokenList[index])
+            if (JSON.stringify(newToken) === JSON.stringify(fromTokenType)) {
+                _handleMoreIconClicked()
+            } else {
+                if (!!fromNumber) {
+                    _calculateToValue(fromNumber, fromTokenType, newToken)
+                }
+                setToTokenType(newToken);
+                setToHelperText(`Balance: ${balance.amount} ${newToken.token}`)
             }
-            setToTokenType(tokenList[index]);
-            setToHelperText(`Balance: ${balance.amount} ${tokenList[index].token}`)
         }
     };
     const _handleFromChange = (e) => {
@@ -165,11 +175,11 @@ function ExchangeToken(props) {
         let message = !!fromTokenType ? `Balance: ${balance} ${fromTokenType.token}` : "";
         if (!!value) {
             setFromNumber(value)
+            _calculateToValue(value, fromTokenType, toTokenType)
             if (Number(value) > Number(balance)) {
                 setFromError(true)
                 setFromHelperText("You don't have enough balance for Swap.")
             } else {
-                _calculateToValue(value, fromTokenType, toTokenType)
                 setFromError(false)
                 setFromHelperText(message)
             }
@@ -188,6 +198,23 @@ function ExchangeToken(props) {
             result = Number(value) * Number(fromPrice.price) / Number(toPrice.price)
         }
         setToNumber(result)
+    };
+    const _handleMoreIconClicked = () => {
+        setIsClicked(true)
+        let fromNum = fromNumber
+        let fromTT = fromTokenType
+        let fromBalance = !!fromTokenType ? userCapitals.filter(element => element.token === fromTokenType.token)[0].amount : 0
+        let toBalance = !!toTokenType ? userCapitals.filter(element => element.token === toTokenType.token)[0].amount : 0
+        setFromNumber(toNumber)
+        setFromTokenType(toTokenType)
+        setFromError(!!toNumber ? Number(toNumber) > Number(toBalance) : false)
+        setFromHelperText(toHelperText)
+        setToNumber(fromNum)
+        setToTokenType(fromTT)
+        setToHelperText(!!fromTokenType ? `Balance: ${fromBalance} ${fromTokenType.token}` : "")
+    };
+    const _handleSwapButtonClicked = (event) => {
+
     };
     return (
         <>
@@ -257,10 +284,15 @@ function ExchangeToken(props) {
                                 }
                             </Grid>
                             <Grid container justify="center">
-                                <ExpandMoreIcon
-                                    style={{ color: '#1975f8' }}
-                                    fontSize="large"
-                                />
+                                <IconButton
+                                    edge="end"
+                                    onClick={_handleMoreIconClicked}
+                                >
+                                    <ExpandMoreIcon
+                                        style={{ color: '#1975f8' }}
+                                        fontSize="large"
+                                    />
+                                </IconButton>
                             </Grid>
                             <Grid container spacing={2} direction="row" className={classes.toContainer}>
                                 <Grid item xs={!!toTokenType ? 8 : 7}>
@@ -314,6 +346,7 @@ function ExchangeToken(props) {
                                     disabled={fromError || !fromNumber}
                                     variant="contained"
                                     className={classes.swapButton}
+                                    onClick={e => _handleSwapButtonClicked(e)}
                                 >
                                     Swap
                                 </Button>
