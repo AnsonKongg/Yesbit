@@ -307,7 +307,7 @@ function ExchangeToken(props) {
                             </Grid>
                             <Grid item xs={12}>
                                 <Button
-                                    disabled={fromError}
+                                    disabled={fromError || !fromNumber}
                                     variant="contained"
                                     className={classes.swapButton}
                                 >
