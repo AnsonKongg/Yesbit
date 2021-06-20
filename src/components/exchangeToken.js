@@ -54,6 +54,10 @@ const useStyles = makeStyles({
         fontSize: 20,
         boxShadow: 'none',
         fontWeight: 'bold',
+        "&:disabled": {
+            color: '#bcbbbe',
+            backgroundColor: "#ffeea5"
+        }
     },
     resizeInput: {
         fontSize: 30
