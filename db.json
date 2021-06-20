@@ -1,0 +1,51 @@
+{
+  "userCapitals": [
+      {
+          "id": 1,
+          "token": "USDT",
+          "amount": 16282.968240991659,
+          "logoUrl": "https://cdn.swapall.io/smallIcons/usdtIcon.png"
+      },
+      {
+          "id": 2,
+          "token": "SAP",
+          "amount": 500.12983461298,
+          "logoUrl": "https://cdn.swapall.io/smallIcons/sapIcon.png"
+      },
+      {
+          "id": 3,
+          "token": "SATO",
+          "amount": 123125412,
+          "logoUrl": "https://cdn.swapall.io/smallIcons/satoIcon.png"
+      },
+      {
+          "id": 4,
+          "token": "GPB",
+          "amount": 30.128376,
+          "logoUrl": "https://cdn.swapall.io/smallIcons/gpbIcon.png"
+      }
+  ],
+  "priceList": [
+    {
+        "id": 1,
+        "token": "USDT",
+        "price": 1,
+        "unit": "USDT"
+    },{
+        "id": 2,
+        "token": "SAP",
+        "price": 0.512341241243,
+        "unit": "USDT"
+    },{
+        "id": 3,
+        "token": "SATO",
+        "price": 0.719278461927341,
+        "unit": "USDT"
+    },{
+        "id": 4,
+        "token": "GPB",
+        "price": 0.0128937129846291884691284,
+        "unit": "USDT"
+    }
+  ]
+}
