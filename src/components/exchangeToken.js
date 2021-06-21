@@ -129,6 +129,7 @@ function ExchangeToken(props) {
         if (!!userCapitals && userCapitals.length > 0 && !fromTokenType && !isClicked) {
             setFromTokenType({ token: userCapitals[0].token, url: userCapitals[0].logoUrl })
             setFromHelperText(`Balance: ${userCapitals[0].amount} ${userCapitals[0].token}`)
+            setIsClicked(true)
         }
     }, [dispatch, userCapitals, fromTokenType, isClicked])
 
@@ -200,7 +201,6 @@ function ExchangeToken(props) {
         setToNumber(result)
     };
     const _handleMoreIconClicked = () => {
-        setIsClicked(true)
         let fromNum = fromNumber
         let fromTT = fromTokenType
         let fromBalance = !!fromTokenType ? userCapitals.filter(element => element.token === fromTokenType.token)[0].amount : 0
