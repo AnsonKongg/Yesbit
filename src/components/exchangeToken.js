@@ -121,14 +121,13 @@ function ExchangeToken(props) {
     const [isClicked, setIsClicked] = useState(false);
 
     useEffect(() => {
-        const fetchUserCapitals = async () => {
-            await dispatch(getUserCapitals());
-            await dispatch(getPriceList());
-        };
-        if (!!userCapitals && userCapitals.length <= 0) {
-            fetchUserCapitals();
+        // Fetch Data by APIs
+        if (!!userCapitals && userCapitals.length === 0) {
+            dispatch(getUserCapitals());
+            dispatch(getPriceList());
         }
 
+        // When recevied data, initial fromTokenType, fromHelperText and isClicked
         if (!!userCapitals && userCapitals.length > 0 && !fromTokenType && !isClicked) {
             setFromTokenType({ token: userCapitals[0].token, url: userCapitals[0].logoUrl })
             setFromHelperText(`Balance: ${userCapitals[0].amount} ${userCapitals[0].token}`)
@@ -136,38 +135,44 @@ function ExchangeToken(props) {
         }
     }, [dispatch, userCapitals, fromTokenType, isClicked])
 
-    // Open dropdown menu
     const _handleOpenMenu = (event, position) => {
         setButtonType(position)
         setAnchorEl(event.currentTarget);
     };
-    // Close dropdown menu
     const _handleCloseMenu = () => {
         setAnchorEl(null);
     };
-    // Handle dropdown menu value clicked
     const _handleMenuItemClicked = (event, index) => {
-        let balance = userCapitals.filter(element => element.token === tokenList[index].token)[0]
-        let newToken = tokenList[index]
+        // Based on new fromTokenType, get relative balance
+        const balance = userCapitals.filter(element => element.token === tokenList[index].token)[0]
+        const newToken = tokenList[index]
         setAnchorEl(null);
         if (buttonType === "from") {
+            // When new fromTokenType is equal to toTokenType, swap their valus
             if (JSON.stringify(newToken) === JSON.stringify(toTokenType)) {
                 _handleMoreIconClicked()
             }
+            // When fromNumber is greater than balance, display error message
             else if (Number(fromNumber) > Number(balance.amount)) {
                 setFromTokenType(newToken)
                 setFromError(true)
                 setFromHelperText("You don't have enough balance for Swap.")
-            } else {
+            }
+            // Based on new fromTokenType, update all relative values
+            else {
                 setFromTokenType(newToken)
                 _calculateToValue(fromNumber, newToken, toTokenType)
                 setFromError(false)
                 setFromHelperText(`Balance: ${balance.amount} ${newToken.token}`)
             }
         } else {
+            // When new toTokenType is equal to fromTokenType, swap their valus
             if (JSON.stringify(newToken) === JSON.stringify(fromTokenType)) {
                 _handleMoreIconClicked()
-            } else {
+            }
+            // Based on new toTokenType, update all relative values
+            else {
+                // Check if fromNumber valid. If yes, update toNumber
                 if (!!fromNumber) {
                     _calculateToValue(fromNumber, fromTokenType, newToken)
                 }
@@ -176,44 +181,47 @@ function ExchangeToken(props) {
             }
         }
     };
-    // Handle from text field value change
     const _handleFromChange = (e) => {
-        let value = e.target.value
-        let balance = !!fromTokenType ? userCapitals.filter(element => element.token === fromTokenType.token)[0].amount : 0
-        let message = !!fromTokenType ? `Balance: ${balance} ${fromTokenType.token}` : "";
+        const value = e.target.value
+        //  Check if fromTokenType valid. If yes, get relative balance
+        const balance = !!fromTokenType ? userCapitals.filter(element => element.token === fromTokenType.token)[0].amount : 0
         if (!!value) {
             setFromNumber(value)
             _calculateToValue(value, fromTokenType, toTokenType)
+            // When new fromNumber is greater than balance, display error message
             if (Number(value) > Number(balance)) {
                 setFromError(true)
                 setFromHelperText("You don't have enough balance for Swap.")
             } else {
                 setFromError(false)
-                setFromHelperText(message)
+                //  Check if fromTokenType valid. If yes, update fromHelperText
+                setFromHelperText(!!fromTokenType ? `Balance: ${balance} ${fromTokenType.token}` : "")
             }
         } else {
             setFromNumber('')
             setToNumber('')
             setFromError(false)
-            setFromHelperText(message)
+            //  Check if fromTokenType valid. If yes, update fromHelperText
+            setFromHelperText(!!fromTokenType ? `Balance: ${balance} ${fromTokenType.token}` : "")
         }
     };
-    // Calculate and set current To text field value
+    // Calculate and set To text field value
     const _calculateToValue = (value, fToken, tToken) => {
         let result = ''
         if (!!priceList && priceList.length > 0 && !!fToken && !!tToken && !!value) {
+            // Based on priceList to get each price and calculate the new toNumber
             let fromPrice = priceList.filter(element => element.token === fToken.token)[0]
             let toPrice = priceList.filter(element => element.token === tToken.token)[0]
             result = Number(value) * Number(fromPrice.price) / Number(toPrice.price)
         }
         setToNumber(result)
     };
-    // The ExpandMoreIcon function for swaping text field value and token type
+    // Swapping text field value and token type
     const _handleMoreIconClicked = () => {
-        let fromNum = fromNumber
-        let fromTT = fromTokenType
-        let fromBalance = !!fromTokenType ? userCapitals.filter(element => element.token === fromTokenType.token)[0].amount : 0
-        let toBalance = !!toTokenType ? userCapitals.filter(element => element.token === toTokenType.token)[0].amount : 0
+        const fromNum = fromNumber
+        const fromTT = fromTokenType
+        const fromBalance = !!fromTokenType ? userCapitals.filter(element => element.token === fromTokenType.token)[0].amount : 0
+        const toBalance = !!toTokenType ? userCapitals.filter(element => element.token === toTokenType.token)[0].amount : 0
         setFromNumber(toNumber)
         setFromTokenType(toTokenType)
         setFromError(!!toNumber ? Number(toNumber) > Number(toBalance) : false)

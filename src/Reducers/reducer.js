@@ -1,4 +1,5 @@
-let userState = {
+import * as types from "../config/ActionTypes";
+const userState = {
     type: "",
     userCapitals: [],
     tokenList: [],
@@ -6,14 +7,14 @@ let userState = {
 };
 const reducer = (state = userState, action) => {
     switch (action.type) {
-        case 'GET_USER_CAPITALS':
+        case types.GET_USER_CAPITALS:
             return {
                 ...state,
                 type: action.type,
                 userCapitals: action.userCapitals,
                 tokenList: action.tokenList,
             };
-        case 'GET_PRICE_LIST':
+        case types.GET_PRICE_LIST:
             return {
                 ...state,
                 type: action.type,

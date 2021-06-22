@@ -1,15 +1,17 @@
+import * as APIs from "../config/API";
+import * as types from "../config/ActionTypes";
+
 export const getUserCapitals = () => {
     return async dispatch => {
         try {
-            const response = await fetch('http://localhost:8000/userCapitals')
+            const response = await fetch(APIs.GET_USER_CAPITALS)
             const resData = await response.json();
-            let items = resData;
-            let tokenList = [];
-            items.forEach(element => {
-                tokenList = [...tokenList, {token: element.token, url: element.logoUrl}];
-            });
+            const items = resData;
+            const tokenList = items.map(element => (
+                { token: element.token, url: element.logoUrl }
+            ));
             dispatch({
-                type: 'GET_USER_CAPITALS',
+                type: types.GET_USER_CAPITALS,
                 userCapitals: items,
                 tokenList: tokenList,
             });
@@ -21,12 +23,12 @@ export const getUserCapitals = () => {
 export const getPriceList = () => {
     return async dispatch => {
         try {
-            const response = await fetch('http://localhost:8000/priceList')
+            const response = await fetch(APIs.GET_PRICE_LIST)
             const priceList = await response.json();
             dispatch({
-                type: 'GET_PRICE_LIST',
+                type: types.GET_PRICE_LIST,
                 priceList: priceList,
-            });  
+            });
         } catch (error) {
             console.log(error)
         }
