@@ -25,6 +25,9 @@ const useStyles = makeStyles({
     },
     input: {
         width: '100%',
+        "& .MuiInputBase-root.Mui-disabled": {
+            color: "rgba(0, 0, 0, 1)"
+        }
     },
     selectedButton: {
         width: '100%',
@@ -133,13 +136,16 @@ function ExchangeToken(props) {
         }
     }, [dispatch, userCapitals, fromTokenType, isClicked])
 
+    // Open dropdown menu
     const _handleOpenMenu = (event, position) => {
         setButtonType(position)
         setAnchorEl(event.currentTarget);
     };
+    // Close dropdown menu
     const _handleCloseMenu = () => {
         setAnchorEl(null);
     };
+    // Handle dropdown menu value clicked
     const _handleMenuItemClicked = (event, index) => {
         let balance = userCapitals.filter(element => element.token === tokenList[index].token)[0]
         let newToken = tokenList[index]
@@ -170,6 +176,7 @@ function ExchangeToken(props) {
             }
         }
     };
+    // Handle from text field value change
     const _handleFromChange = (e) => {
         let value = e.target.value
         let balance = !!fromTokenType ? userCapitals.filter(element => element.token === fromTokenType.token)[0].amount : 0
@@ -191,6 +198,7 @@ function ExchangeToken(props) {
             setFromHelperText(message)
         }
     };
+    // Calculate and set current To text field value
     const _calculateToValue = (value, fToken, tToken) => {
         let result = ''
         if (!!priceList && priceList.length > 0 && !!fToken && !!tToken && !!value) {
@@ -200,6 +208,7 @@ function ExchangeToken(props) {
         }
         setToNumber(result)
     };
+    // The ExpandMoreIcon function for swaping text field value and token type
     const _handleMoreIconClicked = () => {
         let fromNum = fromNumber
         let fromTT = fromTokenType
@@ -213,6 +222,7 @@ function ExchangeToken(props) {
         setToTokenType(fromTT)
         setToHelperText(!!fromTokenType ? `Balance: ${fromBalance} ${fromTokenType.token}` : "")
     };
+    // Swap button click function
     const _handleSwapButtonClicked = (event) => {
 
     };
